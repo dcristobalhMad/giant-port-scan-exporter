@@ -10,7 +10,7 @@ jobs:
   build-test-image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: "Determine tag"
         run: 'echo "RELEASE_TAG=0.0.1" >> $GITHUB_ENV'
@@ -33,7 +33,7 @@ jobs:
     needs: [build-test-image]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: "Determine tag"
