@@ -51,7 +51,7 @@ jobs:
 
       - name: Update appVersion in the YAML file
         run: |
-          yq eval --inplace '.appVersion = env.RELEASE_TAG' charts/port-scan-exporter/Chart.yaml
+          yq eval --in-place '.appVersion = env.RELEASE_TAG' charts/port-scan-exporter/Chart.yaml
 
       - name: Set up Helm
         uses: azure/setup-helm@v3
