@@ -1,8 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: { { include "port-scan-exporter.fullname" . } }
-  labels: { { - include "port-scan-exporter.labels" . | nindent 4 } }
+  name: {{ include "port-scan-exporter.fullname" . }}
+  labels: {{ - include "port-scan-exporter.labels" . | nindent 4 }}
 spec:
   ingress:
     - ports:
@@ -14,4 +14,4 @@ spec:
     - Ingress
   podSelector:
     matchLabels:
-      { { - include "port-scan-exporter.selectorLabels" . | nindent 6 } }
+      {{ - include "port-scan-exporter.selectorLabels" . | nindent 6 }}
