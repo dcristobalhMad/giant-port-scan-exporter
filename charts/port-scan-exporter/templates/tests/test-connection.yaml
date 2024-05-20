@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "port-scan-exporter.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "port-scan-exporter.fullname" . }}:{{ .Values.service.port }}/healthz']
   restartPolicy: Never
