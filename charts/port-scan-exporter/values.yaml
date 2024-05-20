@@ -32,6 +32,9 @@ podSecurityContext:
   {}
   # fsGroup: 2000
 
+monitor:
+  enabled: false
+
 securityContext:
   allowPrivilegeEscalation: false
   seccompProfile:
