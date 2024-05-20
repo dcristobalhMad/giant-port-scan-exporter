@@ -6,7 +6,7 @@ metadata:
 spec:
   ingress:
     - ports:
-        - port: { { .Values.service.port } }
+        - port: {{ .Values.service.port }}
   egress:
     - {}
   policyTypes:
@@ -14,4 +14,4 @@ spec:
     - Ingress
   podSelector:
     matchLabels:
-      {{ - include "port-scan-exporter.selectorLabels" . | nindent 6 }}
+      {{- include "port-scan-exporter.selectorLabels" . | nindent 6 }}
