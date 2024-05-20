@@ -30,6 +30,10 @@ var (
 	MaxPort             int
 )
 
+func LogMetric(namespace, pod, port string, value float64) {
+	log.Printf("Metric - namespace: %s, pod: %s, port: %s, open: %f", namespace, pod, port, value)
+}
+
 func Init() {
 	prometheus.MustRegister(openPorts)
 }
@@ -75,11 +79,12 @@ func ScanPodPorts(clientset *kubernetes.Clientset, wg *sync.WaitGroup, semaphore
 					if portNum > MaxPort {
 						continue
 					}
+					isOpen := 0.0
 					if ScanPort(pod.Status.PodIP, portNum, PortscanTimeout) {
-						openPorts.WithLabelValues(pod.Namespace, pod.Name, strconv.Itoa(portNum)).Set(1)
-					} else {
-						openPorts.WithLabelValues(pod.Namespace, pod.Name, strconv.Itoa(portNum)).Set(0)
+						isOpen = 1.0
 					}
+					openPorts.WithLabelValues(pod.Namespace, pod.Name, strconv.Itoa(portNum)).Set(isOpen)
+					LogMetric(pod.Namespace, pod.Name, strconv.Itoa(portNum), isOpen)
 				}
 			}
 		}(pod)

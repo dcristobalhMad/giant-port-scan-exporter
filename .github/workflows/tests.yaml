@@ -15,13 +15,26 @@ jobs:
       - name: "Determine tag"
         run: 'echo "RELEASE_TAG=0.0.1" >> $GITHUB_ENV'
 
-      - name: Build the Docker image
-        run: docker build . -t dcristobal/port-scan-exporter:${{ env.RELEASE_TAG }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        id: build-and-push
+        with:
+          push: true
+          tags: dcristobal/port-scan-exporter-app:latest,dcristobal/port-scan-exporter-app:${{ env.RELEASE_TAG }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "dcristobal/port-scan-exporter:${{ env.RELEASE_TAG }}"
+          image-ref: "dcristobal/port-scan-exporter-app:${{ env.RELEASE_TAG }}"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true

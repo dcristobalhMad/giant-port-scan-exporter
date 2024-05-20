@@ -1,0 +1,18 @@
+{{- if .Values.monitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "port-scan-exporter.fullname" . }}
+  labels: {{- include "port-scan-exporter.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "port-scan-exporter.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: {{ .Values.service.portName }}
+      targetPort: {{ .Values.service.targetPort }}
+      path: /metrics
+      scheme: http
+      interval: 30s
+      scrapeTimeout: 20s
+{{- end}}
