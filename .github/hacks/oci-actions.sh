@@ -7,7 +7,7 @@ set -euo pipefail
 OCI_REGISTRY=registry-1.docker.io
 OCI_NAMESPACE=dcristobal
 CHART_PATH=charts
-CHART_NAME=chart-port-scan-exporter
+CHART_NAME=port-scan-exporter
 
 # function modify tag in values.yaml
 function modify_tag() {
