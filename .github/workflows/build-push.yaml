@@ -1,34 +1,13 @@
 name: "Release"
 
-# on:
-#   push:
-#     branches: [master]
-
 on:
-  pull_request:
-    branches:
-      - master
-    types: [opened, reopened, synchronize]
+  push:
+    tags:
+      - "*"
 
 jobs:
-  tag:
-    name: "Tag"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@v1 # Don't use @master or @v1 unless you're happy to test the latest version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
-          WITH_V: false
-          PRERELEASE: false
-          DEFAULT_BUMP: patch
-
   push_image_to_registry:
     name: Push Docker image to Docker Hub
-    needs: [tag]
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
