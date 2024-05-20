@@ -1,7 +1,8 @@
 apiVersion: v2
 name: port-scan-exporter
 description: A Helm chart for Kubernetes
-
+maintainers:
+  - name: Diego Cristobal
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
