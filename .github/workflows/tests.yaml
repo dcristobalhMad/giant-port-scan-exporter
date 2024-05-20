@@ -16,12 +16,12 @@ jobs:
         run: 'echo "RELEASE_TAG=0.0.1" >> $GITHUB_ENV'
 
       - name: Build the Docker image
-        run: docker build . -t dcristobal/port-scan-exporter:${{ env.RELEASE_TAG }}
+        run: docker build . -t dcristobal/port-scan-exporter-app:${{ env.RELEASE_TAG }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "dcristobal/port-scan-exporter:${{ env.RELEASE_TAG }}"
+          image-ref: "dcristobal/port-scan-exporter-app:${{ env.RELEASE_TAG }}"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
