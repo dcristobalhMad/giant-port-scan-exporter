@@ -5,14 +5,21 @@ metadata:
   name: {{ include "port-scan-exporter.fullname" . }}
   labels: {{- include "port-scan-exporter.labels" . | nindent 4 }}
 spec:
+  jobLabel: {{ default "app.kubernetes.io/name" .Values.monitor.jobLabel }}
+  {{- with .Values.monitor.podTargetLabels }}
+  podTargetLabels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
+    {{- with .Values.monitor.selectorOverride }}
+      {{- toYaml . | nindent 6 }}
+    {{- else }}
       {{- include "port-scan-exporter.selectorLabels" . | nindent 6 }}
+    {{- end }}
   endpoints:
     - port: {{ .Values.service.portName }}
-      targetPort: {{ .Values.service.targetPort }}
       path: /metrics
-      scheme: http
       interval: 30s
       scrapeTimeout: 20s
 {{- end}}

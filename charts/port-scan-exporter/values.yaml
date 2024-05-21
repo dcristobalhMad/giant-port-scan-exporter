@@ -34,7 +34,14 @@ podSecurityContext:
 
 monitor:
   enabled: false
+  additionalLabels: {}
 
+  jobLabel: ""
+
+  # Override the default selector labels
+  podTargetLabels: []
+
+  scheme: http
 securityContext:
   allowPrivilegeEscalation: false
   seccompProfile:
