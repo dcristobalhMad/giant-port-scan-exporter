@@ -30,7 +30,7 @@ jobs:
         id: build-and-push
         with:
           push: true
-          tags: dcristobal/port-scan-exporter-app:latest,dcristobal/port-scan-exporter-app:${{ env.RELEASE_TAG }}
+          tags: dcristobal/port-scan-exporter-app:${{ env.RELEASE_TAG }}
 
   push_chart_to_registry:
     name: Push Helm chart to Docker Hub OCI
