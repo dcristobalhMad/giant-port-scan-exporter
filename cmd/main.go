@@ -29,6 +29,35 @@ var (
 		[]string{"namespace", "pod", "port"},
 	)
 
+	scannedPodsTotal = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "scanned_pods_total",
+			Help: "Total number of pods scanned",
+		},
+	)
+
+	openPortsTotal = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "open_ports_total",
+			Help: "Total number of open ports found across all scanned pods",
+		},
+	)
+
+	scanDuration = prometheus.NewHistogram(
+		prometheus.HistogramOpts{
+			Name:    "port_scan_duration_seconds",
+			Help:    "Duration of port scans",
+			Buckets: prometheus.DefBuckets,
+		},
+	)
+
+	scanErrorsTotal = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "scan_errors_total",
+			Help: "Total number of errors encountered during port scans",
+		},
+	)
+
 	portscanTimeout     time.Duration
 	maxPort             int
 	rescanInterval      time.Duration
@@ -37,7 +66,7 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(openPorts)
+	prometheus.MustRegister(openPorts, scannedPodsTotal, openPortsTotal, scanDuration, scanErrorsTotal)
 }
 
 func getEnvInt(env string, fallback int) int {
@@ -81,6 +110,8 @@ func scanPodPorts(clientset *kubernetes.Clientset, wg *sync.WaitGroup, semaphore
 	pods, err := clientset.CoreV1().Pods("").List(ctx, metav1.ListOptions{})
 	if err != nil {
 		log.Printf("Error listing pods: %v", err)
+		scanErrorsTotal.Inc()
+		log.Printf("Total scan errors: %d", scanErrorsTotal)
 		return
 	}
 
@@ -91,6 +122,8 @@ func scanPodPorts(clientset *kubernetes.Clientset, wg *sync.WaitGroup, semaphore
 		if pod.Spec.HostNetwork {
 			continue
 		}
+		scannedPodsTotal.Inc()
+		log.Printf("Total scanned pods: %d", scannedPodsTotal)
 		podWg.Add(1)
 		go func(pod corev1.Pod) {
 			defer podWg.Done()
@@ -106,6 +139,8 @@ func scanPodPorts(clientset *kubernetes.Clientset, wg *sync.WaitGroup, semaphore
 					isOpen := 0.0
 					if scanPort(pod.Status.PodIP, portNum, portscanTimeout) {
 						isOpen = 1.0
+						openPortsTotal.Inc()
+						log.Printf("Total open ports: %d", openPortsTotal)
 					}
 					openPorts.WithLabelValues(pod.Namespace, pod.Name, strconv.Itoa(portNum)).Set(isOpen)
 					logMetric(pod.Namespace, pod.Name, strconv.Itoa(portNum), isOpen)
@@ -145,11 +180,15 @@ func main() {
 
 	go func() {
 		for {
+			start := time.Now()
 			var wg sync.WaitGroup
 			semaphore := make(chan struct{}, portscanWorkers)
 			wg.Add(1)
 			go scanPodPorts(clientset, &wg, semaphore)
 			wg.Wait()
+			duration := time.Since(start).Seconds()
+			scanDuration.Observe(duration)
+			log.Printf("Scan duration: %f seconds", duration)
 			time.Sleep(rescanInterval)
 		}
 	}()
